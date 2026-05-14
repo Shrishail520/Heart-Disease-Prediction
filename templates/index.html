@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeartGuard — Heart Health Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<!-- ══════════ TOAST ══════════ -->
+<div id="toasts"></div>
+
+<!-- ══════════ EMERGENCY OVERLAY ══════════ -->
+<div id="emergency-overlay" class="emergency-overlay hidden">
+  <div class="emergency-modal">
+    <div class="em-pulse-ring"></div>
+    <div class="em-icon">🚨</div>
+    <h2>EMERGENCY ACTIVATED</h2>
+    <p class="em-number">Calling <strong>108</strong> — Ambulance</p>
+    <div id="em-location" class="em-location">Fetching your location...</div>
+    <div class="em-steps">
+      <div class="em-step">Stay calm and sit or lie down</div>
+      <div class="em-step">Unlock your front door if possible</div>
+      <div class="em-step">Do not eat or drink anything</div>
+      <div class="em-step">Keep phone line open for dispatcher</div>
+    </div>
+    <div class="em-actions">
+      <a href="tel:108" class="em-call-btn">📞 Call 108 Now</a>
+      <button class="em-close-btn" onclick="closeEmergency()">Close Alert</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CHEST PAIN PANEL ══════════ -->
+<div id="chest-pain-overlay" class="chest-overlay hidden">
+  <div class="chest-modal">
+    <button class="cp-close" onclick="closeChestPain()">✕</button>
+    <div class="cp-icon">💔</div>
+    <h2>Chest Pain First Aid</h2>
+    <p class="cp-sub">Follow these steps immediately while waiting for help</p>
+    <div class="cp-steps">
+      <div class="cp-step"><span class="cp-num">1</span><div><strong>Stay Calm & Sit Down</strong><p>Stop all activity. Sit in a comfortable position. Do not lie flat.</p></div></div>
+      <div class="cp-step"><span class="cp-num">2</span><div><strong>Call Emergency Services</strong><p>Call 108 immediately. Tell them you have chest pain.</p></div></div>
+      <div class="cp-step"><span class="cp-num">3</span><div><strong>Take Aspirin (if prescribed)</strong><p>Chew one 325mg aspirin if your doctor has prescribed it.</p></div></div>
+      <div class="cp-step"><span class="cp-num">4</span><div><strong>Loosen Tight Clothing</strong><p>Remove tie, unbutton shirt collar, loosen belt.</p></div></div>
+      <div class="cp-step"><span class="cp-num">5</span><div><strong>Slow Deep Breaths</strong><p>Breathe in slowly for 4 counts, hold 2, exhale for 6.</p></div></div>
+      <div class="cp-step"><span class="cp-num">6</span><div><strong>Unlock Door for Paramedics</strong><p>If alone, unlock your door so help can reach you.</p></div></div>
+    </div>
+    <a href="tel:108" class="cp-call">📞 Call 108 Ambulance</a>
+  </div>
+</div>
+
+<!-- ══════════ AUTH MODAL ══════════ -->
+<div id="auth-modal" class="auth-modal hidden">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-logo">💓</div>
+    <div class="auth-tabs">
+      <button class="atab active" onclick="switchAuth('login',this)">Sign In</button>
+      <button class="atab" onclick="switchAuth('register',this)">Register</button>
+    </div>
+    <!-- Login -->
+    <div id="af-login" class="auth-form active">
+      <div class="form-group"><label>Username</label><input id="l-user" type="text" placeholder="your.username"></div>
+      <div class="form-group"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••"></div>
+      <span id="l-err" class="auth-err hidden">Invalid credentials</span>
+      <button class="auth-submit" onclick="doLogin()">Sign In</button>
+    </div>
+    <!-- Register -->
+    <div id="af-register" class="auth-form">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name</label><input id="r-name" type="text" placeholder="Dr. Rajesh Kumar"></div>
+        <div class="form-group"><label>Age</label><input id="r-age" type="number" placeholder="45" min="18" max="99"></div>
+      </div>
+      <div class="form-group"><label>Username</label><input id="r-user" type="text" placeholder="rajesh.kumar"></div>
+      <div class="form-group"><label>Password</label><input id="r-pass" type="password" placeholder="Min. 6 characters"></div>
+      <div class="form-group"><label>Phone (optional)</label><input id="r-phone" type="tel" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label>Doctor Code (optional)</label><input id="r-doctor-code" type="text" placeholder="Enter doctor registration code"></div>
+      <div class="form-group"><label>Emergency Contact Name</label><input id="r-ec" type="text" placeholder="Family member name"></div>
+      <span id="r-err" class="auth-err hidden">Username taken</span>
+      <button class="auth-submit" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<div id="bp-guide-modal" class="info-modal hidden">
+  <div class="info-card">
+    <button class="info-close" onclick="closeBpGuide()">✕</button>
+    <h3>How to measure BP at home</h3>
+    <p>Home BP monitors are widely available and easy to use. Follow these simple steps:</p>
+    <ul>
+      <li>Wear the cuff on your upper arm while seated and relaxed.</li>
+      <li>Rest for 5 minutes before taking a reading.</li>
+      <li>Keep your arm at heart level and avoid talking during measurement.</li>
+      <li>Take 2-3 readings and use the average value.</li>
+    </ul>
+    <p>These devices are affordable and often available at pharmacies, online stores, or medical shops.</p>
+  </div>
+</div>
+
+<div id="chol-guide-modal" class="info-modal hidden">
+  <div class="info-card">
+    <button class="info-close" onclick="closeCholReminder()">✕</button>
+    <h3>How to get your cholesterol tested</h3>
+    <p>Cholesterol requires a simple lab test called a lipid profile.</p>
+    <ul>
+      <li>Visit a nearby diagnostic lab or hospital.</li>
+      <li>Ask for a lipid profile / cholesterol test.</li>
+      <li>Typical cost in India is around ₹200–₹500.</li>
+      <li>Some pharmacies and clinics also offer finger-prick cholesterol checks.</li>
+    </ul>
+    <p>If you do not know your cholesterol, the app uses an average value so the prediction remains usable.</p>
+  </div>
+</div>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">💓</div>
+      <span>Heart<strong>Guard</strong></span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" onclick="showSection('predict',this)">Predict</button>
+      <button class="nav-btn" onclick="showSection('diet',this)">Diet</button>
+      <button class="nav-btn" onclick="showSection('routine',this)">Routine</button>
+      <button id="doctor-nav-btn" class="nav-btn hidden" onclick="showSection('doctor',this)">Doctor</button>
+      <button class="nav-btn" onclick="showSection('history',this)">History</button>
+    </nav>
+    <div class="header-right">
+      <button class="chest-pain-btn" onclick="openChestPain()">💔 Chest Pain</button>
+      <button id="emergency-btn" class="emergency-btn" onclick="activateEmergency()">🚨 Emergency</button>
+      <div id="user-chip" class="user-chip hidden"></div>
+      <button id="auth-toggle" class="auth-toggle-btn" onclick="openAuth()">Sign In</button>
+      <a id="doctor-auth-toggle" class="auth-toggle-btn doctor-login-btn" href="/doctor-login">Doctor Login</a>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-blob b1"></div>
+    <div class="hero-blob b2"></div>
+    <div class="ecg-line"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">AI-Powered Cardiac Assessment</div>
+    <h1 class="hero-title">Monitor Your Heart.<br><em>Live Longer.</em></h1>
+    <p class="hero-sub">Clinical-grade risk prediction using Random Forest & Gradient Boosting ML — trained on 800+ patient records. Get instant results, diet plans, and emergency support.</p>
+    <div class="hero-actions">
+      <button class="cta-primary" onclick="showSection('predict', document.querySelector('.nav-btn'))">Start Assessment →</button>
+      <button class="cta-ghost" onclick="openChestPain()">Chest Pain Help</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val">84%</div><div class="hstat-label">ML Accuracy</div></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><div class="hstat-val">13</div><div class="hstat-label">Clinical Inputs</div></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><div class="hstat-val">2</div><div class="hstat-label">ML Models</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="heart-monitor-card">
+      <div class="hmc-header"><span class="hmc-dot red"></span><span class="hmc-dot yellow"></span><span class="hmc-dot green"></span><span class="hmc-title">Live Monitor</span></div>
+      <div class="hmc-ecg"><canvas id="ecg-canvas" width="320" height="80"></canvas></div>
+      <div class="hmc-metrics">
+        <div class="hmc-metric"><div class="hmc-val" id="hm-bpm">72</div><div class="hmc-lbl">BPM</div></div>
+        <div class="hmc-metric"><div class="hmc-val" id="hm-spo2">98%</div><div class="hmc-lbl">SpO₂</div></div>
+        <div class="hmc-metric"><div class="hmc-val" id="hm-bp">120/80</div><div class="hmc-lbl">BP</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SECTIONS ══════════ -->
+<main class="main">
+
+  <!-- ── PREDICT ── -->
+  <section id="sec-predict" class="section active">
+    <div class="section-header">
+      <h2>Heart Disease Risk Assessment</h2>
+      <p>Enter your clinical measurements below. All 13 parameters are used by the ML model.</p>
+    </div>
+    <div class="predict-layout">
+      <div class="predict-form-card">
+        <div class="input-grid">
+          <div class="input-grp">
+            <label>Age <span class="unit">years</span></label>
+            <input type="number" id="f-age" value="52" min="20" max="80" oninput="lv('age-v',this.value)">
+            <span class="live-val" id="age-v">52 yrs</span>
+          </div>
+          <div class="input-grp">
+            <label>First Name</label>
+            <input type="text" id="f-name" placeholder="First name" maxlength="30" oninput="sanitizeNameInput(this)">
+            <span class="field-note">Only letters are allowed.</span>
+          </div>
+          <div class="input-grp">
+            <label>Sex</label>
+            <select id="f-sex">
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </div>
+          <div class="input-grp">
+            <label>Chest Pain Type <span class="field-sub">Type 4 means asymptomatic — no chest pain present</span></label>
+            <select id="f-cp">
+              <option value="0">Typical Angina (severe)</option>
+              <option value="1">Atypical Angina</option>
+              <option value="2">Non-anginal Pain</option>
+              <option value="3" selected>Asymptomatic (no chest pain)</option>
+            </select>
+          </div>
+                <div class="input-grp">
+            <div class="label-row">
+              <label>Resting BP <span class="unit">mmHg</span></label>
+              <button type="button" class="field-hint" onclick="showBpGuide()">How to check?</button>
+            </div>
+            <div class="option-row">
+              <label class="option-switch"><input type="checkbox" id="f-bp-unknown" onchange="bpUnknownChanged()"> I don't know</label>
+            </div>
+            <input type="range" id="f-bp" min="90" max="200" value="125" oninput="lv('bp-v', this.value+' mmHg')">
+            <span class="live-val" id="bp-v">125 mmHg</span>
+            <div id="bp-note" class="field-note hidden">Using average normal value 120 mmHg. Get a home BP monitor or pharmacy check for accurate readings.</div>
+          </div>
+          <div class="input-grp">
+            <div class="label-row">
+              <label>Cholesterol <span class="unit">mg/dL</span></label>
+              <button type="button" class="field-hint" onclick="openCholReminder()">Need a test?</button>
+            </div>
+            <div class="option-row">
+              <label class="option-switch"><input type="checkbox" id="f-chol-unknown" onchange="cholUnknownChanged()"> I don't know</label>
+            </div>
+            <input type="range" id="f-chol" min="100" max="570" value="212" oninput="lv('chol-v', this.value+' mg/dL')">
+            <span class="live-val" id="chol-v">212 mg/dL</span>
+            <div id="chol-note" class="field-note hidden">Using average normal value 200 mg/dL. A lipid profile test gives more accurate risk information.</div>
+          </div>
+          <div class="input-grp">
+            <label>Fasting Blood Sugar &gt; 120</label>
+            <select id="f-fbs">
+              <option value="0">No (Normal)</option>
+              <option value="1">Yes (High)</option>
+            </select>
+          </div>
+          <div class="input-grp">
+            <label>Resting ECG</label>
+            <select id="f-restecg">
+              <option value="0" selected>Normal</option>
+              <option value="1">ST-T Wave Abnormality</option>
+              <option value="2">Left Ventricular Hypertrophy</option>
+            </select>
+          </div>
+          <div class="input-grp">
+            <label>Max Heart Rate <span class="unit">bpm</span></label>
+            <input type="range" id="f-thalach" min="70" max="202" value="150" oninput="lv('thal-v', this.value+' bpm')">
+            <span class="live-val" id="thal-v">150 bpm</span>
+          </div>
+          <div class="input-grp">
+            <label>Exercise-Induced Angina</label>
+            <select id="f-exang">
+              <option value="0" selected>No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+          <div class="input-grp">
+            <label>ST Depression <span class="unit">oldpeak</span></label>
+            <input type="range" id="f-oldpeak" min="0" max="62" value="10" oninput="lv('op-v', (this.value/10).toFixed(1))">
+            <span class="live-val" id="op-v">1.0</span>
+          </div>
+          <div class="input-grp">
+            <label>Slope of ST Segment</label>
+            <select id="f-slope">
+              <option value="0">Upsloping</option>
+              <option value="1" selected>Flat</option>
+              <option value="2">Downsloping</option>
+            </select>
+          </div>
+          <div class="input-grp">
+            <label>Major Vessels (Fluoroscopy)</label>
+            <select id="f-ca">
+              <option value="0" selected>0 vessels</option>
+              <option value="1">1 vessel</option>
+              <option value="2">2 vessels</option>
+              <option value="3">3 vessels</option>
+            </select>
+          </div>
+          <div class="input-grp full">
+            <label>Thalassemia</label>
+            <select id="f-thal">
+              <option value="1">Normal</option>
+              <option value="2" selected>Fixed Defect</option>
+              <option value="3">Reversible Defect</option>
+            </select>
+          </div>
+        </div>
+        <button class="predict-btn" onclick="runPredict()">
+          <span class="predict-btn-icon">🧠</span> Analyse with ML
+        </button>
+      </div>
+
+      <!-- Result Panel -->
+      <div id="result-panel" class="result-panel">
+        <div class="result-placeholder">
+          <div class="rp-icon">🫀</div>
+          <p>Enter your details and click <strong>Analyse</strong> to get your heart disease risk assessment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DIET ── -->
+  <section id="sec-diet" class="section">
+    <div class="section-header">
+      <h2>Heart-Healthy Diet Guide</h2>
+      <p>Nutrition is medicine. What you eat directly impacts your cardiovascular health.</p>
+    </div>
+    <div id="diet-content" class="diet-layout">
+      <div class="loading-state">Loading diet recommendations...</div>
+    </div>
+  </section>
+
+  <!-- ── ROUTINE ── -->
+  <section id="sec-routine" class="section">
+    <div class="section-header">
+      <h2>Daily Heart Health Routine</h2>
+      <p>A structured day keeps cardiac events at bay. Follow this science-backed schedule.</p>
+    </div>
+    <div id="routine-content" class="routine-layout">
+      <div class="loading-state">Loading your daily schedule...</div>
+    </div>
+  </section>
+
+  <!-- ── HISTORY ── -->
+  <section id="sec-history" class="section">
+    <div class="section-header">
+      <h2>Assessment History</h2>
+      <p>Track your cardiac risk over time.</p>
+    </div>
+    <div class="history-chart-card">
+      <canvas id="history-chart" height="180"></canvas>
+    </div>
+    <div id="history-content">
+      <div class="loading-state">Loading history...</div>
+    </div>
+  </section>
+
+  <!-- ── DOCTOR DASHBOARD ── -->
+  <section id="sec-doctor" class="section">
+    <div class="section-header">
+      <h2>Doctor Dashboard</h2>
+      <p>Review submitted patient assessments and add recommendations.</p>
+    </div>
+    <div id="doctor-content">
+      <div class="loading-state">Loading doctor dashboard...</div>
+    </div>
+  </section>
+</main>
+
+<!-- ══════════ EMERGENCY CHATBOX ══════════ -->
+<div id="emergency-chatbox" class="echat-widget">
+  <button id="echat-toggle" class="echat-toggle" onclick="toggleEmergencyChat()" aria-label="Emergency Chat">
+    <span class="echat-toggle-icon">🩺</span>
+    <span class="echat-toggle-label">Emergency Chat</span>
+    <span class="echat-pulse-dot"></span>
+  </button>
+  <div id="echat-panel" class="echat-panel hidden">
+    <div class="echat-header">
+      <div class="echat-header-left">
+        <div class="echat-header-icon">🩺</div>
+        <div>
+          <div class="echat-header-title">Emergency Assistant</div>
+          <div class="echat-header-sub">AI-powered symptom guidance</div>
+        </div>
+      </div>
+      <button class="echat-close" onclick="toggleEmergencyChat()" aria-label="Close chat">✕</button>
+    </div>
+    <div class="echat-disclaimer">
+      <span>⚠️</span> Not a substitute for medical advice. Call <strong>108</strong> for real emergencies.
+    </div>
+    <div id="echat-messages" class="echat-messages">
+      <div class="echat-msg bot">
+        <div class="echat-avatar">🩺</div>
+        <div class="echat-bubble">
+          <p>Hello! I'm your <strong>Emergency Health Assistant</strong>.</p>
+          <p>Describe your symptoms and I'll provide immediate first-aid guidance and tips. Remember, for serious emergencies always call <strong>108</strong>.</p>
+          <p class="echat-example">Try: <em>"I'm feeling chest pain and shortness of breath"</em></p>
+        </div>
+      </div>
+    </div>
+    <div class="echat-input-area">
+      <div class="echat-input-wrap">
+        <textarea id="echat-input" class="echat-input" placeholder="Describe your symptoms..." rows="1" maxlength="1000" onkeydown="handleChatKeydown(event)"></textarea>
+        <button id="echat-send" class="echat-send" onclick="sendEmergencyChat()" aria-label="Send message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="echat-input-hint">Press Enter to send · Shift+Enter for new line</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">💓 HeartGuard</div>
+    <p class="footer-disclaimer">For educational and monitoring purposes only. Not a substitute for professional medical advice. Always consult your cardiologist.</p>
+    <div class="footer-emergency">
+      <span>Emergency: </span>
+      <a href="tel:108">📞 108 Ambulance</a>
+      <a href="tel:112">📞 112 National</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

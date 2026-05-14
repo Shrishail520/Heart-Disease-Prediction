@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctor Login | HeartGuard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="page-login">
+  <div id="toasts"></div>
+  <div id="user-chip" class="user-chip hidden"></div>
+  <button id="auth-toggle" class="auth-toggle-btn hidden"></button>
+
+  <main class="auth-page">
+    <div class="auth-panel">
+      <div class="auth-logo">💓</div>
+      <h1>Doctor Login</h1>
+      <p>Sign in with your doctor account to access patient history and doctor notes.</p>
+
+      <div class="form-group">
+        <label for="dl-user">Doctor Username</label>
+        <input id="dl-user" type="text" placeholder="doctor.username">
+      </div>
+      <div class="form-group">
+        <label for="dl-pass">Password</label>
+        <input id="dl-pass" type="password" placeholder="••••••••">
+      </div>
+      <span id="dl-err" class="auth-err hidden">Doctor account required</span>
+      <button class="auth-submit" onclick="doDoctorLogin()">Sign In</button>
+      <p class="field-note">If you're a doctor registering for the first time, use the dedicated registration page.</p>
+      <a class="link-secondary" href="/doctor-register">Doctor registration</a><br>
+      <a class="link-secondary" href="/">Back to main app</a>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

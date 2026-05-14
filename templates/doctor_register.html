@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctor Registration | HeartGuard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="page-login">
+  <div id="toasts"></div>
+  <div id="user-chip" class="user-chip hidden"></div>
+  <button id="auth-toggle" class="auth-toggle-btn hidden"></button>
+
+  <main class="auth-page">
+    <div class="auth-panel">
+      <div class="auth-logo">💓</div>
+      <h1>Doctor Registration</h1>
+      <p>Create a doctor account by entering the doctor code provided by the admin.</p>
+
+      <div class="form-row">
+        <div class="form-group"><label for="r-name">Full Name</label><input id="r-name" type="text" placeholder="Dr. Rajesh Kumar"></div>
+        <div class="form-group"><label for="r-age">Age</label><input id="r-age" type="number" placeholder="45" min="18" max="99"></div>
+      </div>
+      <div class="form-group"><label for="r-user">Username</label><input id="r-user" type="text" placeholder="rajesh.kumar"></div>
+      <div class="form-group"><label for="r-pass">Password</label><input id="r-pass" type="password" placeholder="Min. 6 characters"></div>
+      <div class="form-group"><label for="r-phone">Phone (optional)</label><input id="r-phone" type="tel" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label for="r-doctor-code">Doctor Code</label><input id="r-doctor-code" type="text" placeholder="Enter doctor registration code"></div>
+      <div class="form-group"><label for="r-ec">Emergency Contact Name</label><input id="r-ec" type="text" placeholder="Family member name"></div>
+      <span id="r-err" class="auth-err hidden">Username taken</span>
+      <button class="auth-submit" onclick="doRegister()">Create Doctor Account</button>
+      <a class="link-secondary" href="/doctor-login">Back to doctor login</a><br>
+      <a class="link-secondary" href="/">Back to main app</a>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
